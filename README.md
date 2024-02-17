@@ -1,5 +1,6 @@
 # GEOL0069week4
 In this week's assignment, we apply K-means clustering and Gaussian Mixture Models to distinguish sea ice from leads with Sentinel-2 imagery and Sentinel-3 altimetry dataset, classify the echos in leads and sea ice, and produce an average echo shape and standard deviation for these 2 classes. 
+test
 
 ## Sentinel-2
 ### We first implement K-means clustering with Sentinel-2 imagery:
