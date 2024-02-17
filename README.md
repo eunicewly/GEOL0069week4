@@ -356,8 +356,9 @@ flag_cleaned = flag[~np.isnan(data_normalized).any(axis=1)]
 waves_cleaned = waves[~np.isnan(data_normalized).any(axis=1)][(flag_cleaned==1)|(flag_cleaned==2)]
 ```
 
-## Average echos shape of sea ice and lead
-We now run the GMM to classify sea ice from lead, and then plot the the average echo shape of 
+## Echos of sea ice and lead
+### 2 classes
+We now run the GMM to distinguish sea ice from lead, and then plot the the average echo shape of sea ice and lead:
 ```
 gmm = GaussianMixture(n_components=2, random_state=0)
 gmm.fit(data_cleaned[(flag_cleaned==1)|(flag_cleaned==2)])
@@ -378,3 +379,80 @@ plt.title('Plot of the standard deviation of the echos of sea ice and lead')
 plt.legend()
 ```
 ![std echos](https://github.com/eunicewly/GEOL0069week4/assets/159627060/521477a5-c8d1-461d-a61d-86825c27536e)
+
+We can also change the number of classes from 2 to 5 and 10 to compare and validate whether a 2-class classification is appropriate:
+
+### 5 classes
+The average echo shapes:
+```
+# 5 classes
+gmm = GaussianMixture(n_components=5, random_state=0)
+gmm.fit(data_cleaned[(flag_cleaned==1)|(flag_cleaned==2)])
+clusters_gmm = gmm.predict(data_cleaned[(flag_cleaned==1)|(flag_cleaned==2)])
+
+plt.plot(np.mean(waves_cleaned[clusters_gmm==0],axis=0),label='class0')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==1],axis=0),label='class1')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==2],axis=0),label='class2')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==3],axis=0),label='class3')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==4],axis=0),label='class4')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==5],axis=0),label='class5')
+plt.title('Plot of the average echo shape of the 5 classes in GMM')
+plt.legend()
+```
+![gmm5class](https://github.com/eunicewly/GEOL0069week4/assets/159627060/d0d82d97-df0b-4c63-b81b-cb6f64cedaff)
+
+The standard deviations:
+```
+plt.plot(np.std(waves_cleaned[clusters_gmm==0],axis=0),label='class0')
+plt.plot(np.std(waves_cleaned[clusters_gmm==1],axis=0),label='class1')
+plt.plot(np.std(waves_cleaned[clusters_gmm==2],axis=0),label='class2')
+plt.plot(np.std(waves_cleaned[clusters_gmm==3],axis=0),label='class3')
+plt.plot(np.std(waves_cleaned[clusters_gmm==4],axis=0),label='class4')
+plt.plot(np.std(waves_cleaned[clusters_gmm==5],axis=0),label='class5')
+plt.title('Plot of the echo standard deviation of the 5 classes in GMM')
+plt.legend()
+```
+![gmm5class_std](https://github.com/eunicewly/GEOL0069week4/assets/159627060/9049c8f7-d39e-4984-a48c-47951477dc79)
+
+
+### 10 classes
+The average echo shapes:
+```
+# 10 classes
+gmm = GaussianMixture(n_components=10, random_state=0)
+gmm.fit(data_cleaned)
+clusters_gmm = gmm.predict(data_cleaned[(flag_cleaned==1)|(flag_cleaned==2)])
+
+plt.plot(np.mean(waves_cleaned[clusters_gmm==0],axis=0),label='class0')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==1],axis=0),label='class1')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==2],axis=0),label='class2')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==3],axis=0),label='class3')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==4],axis=0),label='class4')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==5],axis=0),label='class5')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==6],axis=0),label='class6')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==7],axis=0),label='class7')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==8],axis=0),label='class8')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==9],axis=0),label='class9')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==10],axis=0),label='class10')
+plt.title('Plot of the average echo shape of the 10 classes in GMM')
+plt.legend()
+```
+![gmm10class](https://github.com/eunicewly/GEOL0069week4/assets/159627060/f0f09d27-aa45-49d0-ae3b-5bf4d482996c)
+
+The standard deviations:
+```
+plt.plot(np.std(waves_cleaned[clusters_gmm==0],axis=0),label='class0')
+plt.plot(np.std(waves_cleaned[clusters_gmm==1],axis=0),label='class1')
+plt.plot(np.std(waves_cleaned[clusters_gmm==2],axis=0),label='class2')
+plt.plot(np.std(waves_cleaned[clusters_gmm==3],axis=0),label='class3')
+plt.plot(np.std(waves_cleaned[clusters_gmm==4],axis=0),label='class4')
+plt.plot(np.std(waves_cleaned[clusters_gmm==5],axis=0),label='class5')
+plt.plot(np.std(waves_cleaned[clusters_gmm==6],axis=0),label='class6')
+plt.plot(np.std(waves_cleaned[clusters_gmm==7],axis=0),label='class7')
+plt.plot(np.std(waves_cleaned[clusters_gmm==8],axis=0),label='class8')
+plt.plot(np.std(waves_cleaned[clusters_gmm==9],axis=0),label='class9')
+plt.plot(np.std(waves_cleaned[clusters_gmm==10],axis=0),label='class10')
+plt.title('Plot of the echo standard deviation of the 10 classes in GMM')
+plt.legend()
+```
+![gmm10class_std](https://github.com/eunicewly/GEOL0069week4/assets/159627060/bb87c37c-d071-46ba-aa0c-9ff50028d934)
