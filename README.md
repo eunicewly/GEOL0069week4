@@ -1,7 +1,8 @@
 # GEOL0069week4
-In this week's assignment, we apply K-means clustering and Gaussian Mixture Model to distinguish sea ice from leads with Sentinel-2 imagery and Sentinel-3 altimetry dataset, classify the echos in leads and sea ice, and produce an average echo shape and standard deviation for these 2 classes. 
+In this week's assignment, we apply K-means clustering and Gaussian Mixture Models to distinguish sea ice from leads with Sentinel-2 imagery and Sentinel-3 altimetry dataset, classify the echos in leads and sea ice, and produce an average echo shape and standard deviation for these 2 classes. 
 
-We first implement K-means clustering with Sentinel-2 imagery:
+## Sentinel-2
+### We first implement K-means clustering with Sentinel-2 imagery:
 ```
 !pip install rasterio
 ```
@@ -50,7 +51,7 @@ plt.show()
 ```
 ![K-means Sentinel 2](https://github.com/eunicewly/GEOL0069week4/assets/159627060/64cc2590-abdb-4f9b-8eca-fc0557a38a61)
 
-Next, we implement Gaussian Mixture Model (GMM) with Sentinel-2 imagery:
+### Next, we implement Gaussian Mixture Models (GMM) with Sentinel-2 imagery:
 
 ```
 import rasterio
@@ -98,12 +99,14 @@ plt.show()
 ```
 ![GMM Sentinel 2](https://github.com/eunicewly/GEOL0069week4/assets/159627060/9986cc2a-3c3b-4942-bf76-5b952b67a39a)
 
-
-Now, we applly these unsupervised methods to altimetry classification tasks, focusing specifically on distinguishing between sea ice and leads in Sentinel-3 altimetry dataset.
+## Sentinel-3 Altimetry
+Now, we apply these unsupervised methods to altimetry classification tasks, focusing specifically on distinguishing between sea ice and leads in Sentinel-3 altimetry dataset.
+First, we transform the raw data into meaningful variables, such as peakniness and stack standard deviation (SSD), etc. to ensure compatibility with our analytical models. 
 
 ```
 ! pip install netCDF4
 ```
+The codes below create functions that calculate the peakiness of waveforms, unpacks data, and calculates the Sum of Squared Differences (SSD) for each RIP (Radar Imagery Product) waveform. 
 ```
 #
 from netCDF4 import Dataset
@@ -312,4 +315,66 @@ def calculate_SSD(RIP):
     return SSD
 
 ```
+The codes below unload data (latitude (SAR_lat), longitude (SAR_lon), waveforms (waves), signal-to-noise ratio (sig_0) and RIP (Radar Imagery Product)), filter data points, calculate Peakiness (PP) and Sum of Squared Differences (SSD) and standardise data. 
 
+```
+path = '/content/drive/MyDrive/GEOL0069/week4/S3B_SR_2_LAN_SI_20190301T231304_20190301T233006_20230405T162425_1021_022_301______LN3_R_NT_005.SEN3/' # You need to specify the path
+SAR_file='S3B_SR_2_LAN_SI_20190301T231304_20190301T233006_20230405T162425_1021_022_301______LN3_R_NT_005.SEN3'
+print('overlapping SAR file is',SAR_file)
+SAR_data=Dataset(path + SAR_file+'/enhanced_measurement.nc')
+
+SAR_lat, SAR_lon, waves, sig_0, RIP, flag = unpack_gpod('lat_20_ku'), unpack_gpod('lon_20_ku'), unpack_gpod('waveform_20_ku'),unpack_gpod('sig0_water_20_ku'),unpack_gpod('rip_20_ku'),unpack_gpod('surf_type_class_20_ku') #unpack_gpod('Sigma0_20Hz')
+SAR_index=np.arange(np.size(SAR_lat))
+
+find=np.where(SAR_lat >= -99999)#60
+SAR_lat=SAR_lat[find]
+SAR_lon=SAR_lon[find]
+SAR_index=SAR_index[find]
+waves=waves[find]
+sig_0=sig_0[find]
+RIP=RIP[find]
+
+PP=peakiness(waves)
+SSD=calculate_SSD(RIP)
+sig_0_np = np.array(sig_0)  # Replace [...] with your data
+RIP_np = np.array(RIP)
+PP_np = np.array(PP)
+SSD_np = np.array(SSD)
+
+data = np.column_stack((sig_0_np,PP_np, SSD_np))
+# Standardize the data
+scaler = StandardScaler()
+data_normalized = scaler.fit_transform(data)
+```
+
+Next, we need to clean and delete the NaN values in the dataset:
+```
+nan_count = np.isnan(data_normalized).sum()
+print(f"Number of NaN values in the array: {nan_count}")
+data_cleaned = data_normalized[~np.isnan(data_normalized).any(axis=1)]
+flag_cleaned = flag[~np.isnan(data_normalized).any(axis=1)]
+waves_cleaned = waves[~np.isnan(data_normalized).any(axis=1)][(flag_cleaned==1)|(flag_cleaned==2)]
+```
+
+## Average echos shape of sea ice and lead
+We now run the GMM to classify sea ice from lead, and then plot the the average echo shape of 
+```
+gmm = GaussianMixture(n_components=2, random_state=0)
+gmm.fit(data_cleaned[(flag_cleaned==1)|(flag_cleaned==2)])
+clusters_gmm = gmm.predict(data_cleaned[(flag_cleaned==1)|(flag_cleaned==2)])
+
+plt.plot(np.mean(waves_cleaned[clusters_gmm==0],axis=0),label='ice')
+plt.plot(np.mean(waves_cleaned[clusters_gmm==1],axis=0),label='lead')
+plt.title('Plot of the average echos shape of sea ice and lead')
+plt.legend()
+```
+![average echos](https://github.com/eunicewly/GEOL0069week4/assets/159627060/780eb90a-ec42-40fb-9b40-378295eab1fa)
+
+Then we plot the standard deviation of the echos in sea ice and leads:
+```
+plt.plot(np.std(waves_cleaned[clusters_gmm==0],axis=0),label='ice')
+plt.plot(np.std(waves_cleaned[clusters_gmm==1],axis=0),label='lead')
+plt.title('Plot of the standard deviation of the echos of sea ice and lead')
+plt.legend()
+```
+![std echos](https://github.com/eunicewly/GEOL0069week4/assets/159627060/521477a5-c8d1-461d-a61d-86825c27536e)
