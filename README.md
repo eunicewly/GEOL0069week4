@@ -456,3 +456,45 @@ plt.title('Plot of the echo standard deviation of the 10 classes in GMM')
 plt.legend()
 ```
 ![gmm10class_std](https://github.com/eunicewly/GEOL0069week4/assets/159627060/bb87c37c-d071-46ba-aa0c-9ff50028d934)
+
+## Confusion Matrix
+
+Finally, we will quantify our echo classification by GMM (2 class) against the ESA official classification using a confusion matrix:
+
+We first need to modify the ESA classification to make it compatible with our classifcation for the confusion matrix:
+```
+# extract the values in flag just like for data_cleaned 
+esa_flag_cleaned = flag[~np.isnan(data_normalized).any(axis=1)][(flag_cleaned==1)|(flag_cleaned==2)]
+# changing 1 to 0, and 2 to 1
+esa_flag_cleaned = np.where(esa_flag_cleaned == 1, 0, esa_flag_cleaned)
+esa_flag_cleaned = np.where(esa_flag_cleaned == 2, 1, esa_flag_cleaned)
+```
+Then we do the confusion matrix:
+```
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
+
+# Compute confusion matrix
+cm = confusion_matrix(esa_flag_cleaned, clusters_gmm)
+
+# Calculate accuracy
+accuracy = accuracy_score(esa_flag_cleaned, clusters_gmm)
+
+# Display classification report
+report = classification_report(esa_flag_cleaned, clusters_gmm)
+print("Classification Report:\n", report)
+
+# Plot confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", cbar=False)
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted Labels")
+plt.ylabel("True Labels")
+plt.show()
+
+# Display accuracy
+print(f"Accuracy: {accuracy:.2f}")
+```
+![confusion matrix with esa](https://github.com/eunicewly/GEOL0069week4/assets/159627060/ee07d0a4-15bf-4eaf-9198-559bf4f68d15)
