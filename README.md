@@ -1,14 +1,15 @@
 # GEOL0069week4
 
 ## Background
-In this week's assignment, we apply K-means clustering and Gaussian Mixture Models to distinguish sea ice from leads with Sentinel-2 imagery and Sentinel-3 altimetry dataset, classify the echos in leads and sea ice, and produce an average echo shape and standard deviation for these 2 classes. 
+Prior to this assignment, colocation of Sentinel-3 OLCI (Ocean and Land Colour Instrument) data with Sentinel-2 optical data have already been performed, which allows a richer and more detailed Earth's surface investigation by combining the high spatial resolution of Sentinel-2 and the comprehensive coverage and colocated altimeter data from Sentinel-3. In this assignment, we apply two unsupervised methods - K-means clustering and Gaussian Mixture Models to distinguish sea ice from leads with Sentinel-2 imagery and Sentinel-3 altimetry dataset, classify the echos in leads and sea ice, and produce an average echo shape and standard deviation for these 2 classes. 
+
 
 ## Sentinel-2
-### We first implement K-means clustering with Sentinel-2 imagery:
+### K-means clustering 
+We first apply K-means clustering to distinguish between sea ice and leads in Sentinel-2 imagery.
 ```
 !pip install rasterio
 ```
-
 ```
 import rasterio
 import numpy as np
@@ -53,8 +54,8 @@ plt.show()
 ```
 ![K-means Sentinel 2](https://github.com/eunicewly/GEOL0069week4/assets/159627060/64cc2590-abdb-4f9b-8eca-fc0557a38a61)
 
-### Next, we implement Gaussian Mixture Models (GMM) with Sentinel-2 imagery:
-
+### Gaussian Mixture Models (GMM)
+Next, we apply Gaussian Mixture Models (GMM) to distinguish between sea ice and leads in Sentinel-2 imagery.
 ```
 import rasterio
 import numpy as np
@@ -102,8 +103,8 @@ plt.show()
 ![GMM Sentinel 2](https://github.com/eunicewly/GEOL0069week4/assets/159627060/9986cc2a-3c3b-4942-bf76-5b952b67a39a)
 
 ## Sentinel-3 Altimetry
-Now, we apply these unsupervised methods to altimetry classification tasks, focusing specifically on distinguishing between sea ice and leads in Sentinel-3 altimetry dataset.
-First, we transform the raw data into meaningful variables, such as peakniness and stack standard deviation (SSD), etc. to ensure compatibility with our analytical models. 
+Now, we apply these GMM to altimetry classification tasks, focusing specifically on distinguishing between sea ice and leads in Sentinel-3 altimetry dataset.
+We first transform the raw data into meaningful variables, such as peakniness and stack standard deviation (SSD), etc. to ensure compatibility with our analytical models. 
 
 ```
 ! pip install netCDF4
@@ -360,7 +361,7 @@ waves_cleaned = waves[~np.isnan(data_normalized).any(axis=1)][(flag_cleaned==1)|
 
 ## Echos of sea ice and lead
 ### 2 classes
-We now run the GMM to distinguish sea ice from lead, and then plot the the average echo shape of sea ice and lead:
+We now run the GMM to classify data into 2 classes to distinguish sea ice from lead, and then plot the the average echo shape of sea ice and lead:
 ```
 gmm = GaussianMixture(n_components=2, random_state=0)
 gmm.fit(data_cleaned[(flag_cleaned==1)|(flag_cleaned==2)])
@@ -382,10 +383,22 @@ plt.legend()
 ```
 ![std echos](https://github.com/eunicewly/GEOL0069week4/assets/159627060/521477a5-c8d1-461d-a61d-86825c27536e)
 
-We can also change the number of classes from 2 to 5 and 10 to compare and validate whether a 2-class classification is appropriate:
+We can inspect the number of data points in each class of your GMM clustering prediction:
+```
+unique, counts = np.unique(clusters_gmm, return_counts=True)
+class_counts = dict(zip(unique, counts))
+
+print(class_counts)
+```
+```
+{0: 5013, 1: 1836}
+```
+The results show that there is 5013 data points classified as sea ice, and 1836 as lead. 
+
 
 ### 5 classes
-The average echo shapes:
+We can also change the number of classes from 2 to 5 and 10 to compare and validate whether a 2-class classification is appropriate. 
+PLotting the average echo shapes:
 ```
 # 5 classes
 gmm = GaussianMixture(n_components=5, random_state=0)
@@ -461,13 +474,13 @@ plt.legend()
 
 ## Confusion Matrix
 
-Finally, we will quantify our echo classification by GMM (2 class) against the ESA official classification using a confusion matrix:
+Finally, we will quantify our echo classification by GMM (2 class) against the ESA official classification using a confusion matrix.
 
-We first need to modify the ESA classification to make it compatible with our classifcation for the confusion matrix:
+We first need to modify the ESA classification to make it compatible with our classifcation for the confusion matrix, by extracting the corresponding data from flag (ESA classification) that matches those in data_cleaned, and changing the numbers that indicate the sea ice and lead classification to match those in GMM:
 ```
-# extract the values in flag just like for data_cleaned 
+# extract the values in flag that are not corresponding to the NaN values in the data_normalized, just like for data_cleaned 
 esa_flag_cleaned = flag[~np.isnan(data_normalized).any(axis=1)][(flag_cleaned==1)|(flag_cleaned==2)]
-# changing 1 to 0, and 2 to 1
+# changing 1 to 0 (sea ice), and 2 to 1 (lead), so that it is the same as in clusters_gmm classification
 esa_flag_cleaned = np.where(esa_flag_cleaned == 1, 0, esa_flag_cleaned)
 esa_flag_cleaned = np.where(esa_flag_cleaned == 2, 1, esa_flag_cleaned)
 ```
@@ -498,5 +511,17 @@ plt.show()
 
 # Display accuracy
 print(f"Accuracy: {accuracy:.2f}")
+```
+The results from the codes above:
+```
+Classification Report:
+               precision    recall  f1-score   support
+
+         0.0       1.00      0.99      0.99      5086
+         1.0       0.96      1.00      0.98      1763
+
+    accuracy                           0.99      6849
+   macro avg       0.98      0.99      0.99      6849
+weighted avg       0.99      0.99      0.99      6849
 ```
 ![confusion matrix with esa](https://github.com/eunicewly/GEOL0069week4/assets/159627060/ee07d0a4-15bf-4eaf-9198-559bf4f68d15)
