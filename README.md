@@ -370,18 +370,22 @@ clusters_gmm = gmm.predict(data_cleaned[(flag_cleaned==1)|(flag_cleaned==2)])
 plt.plot(np.mean(waves_cleaned[clusters_gmm==0],axis=0),label='ice')
 plt.plot(np.mean(waves_cleaned[clusters_gmm==1],axis=0),label='lead')
 plt.title('Plot of the average echos shape of sea ice and lead')
+plt.xlabel('Number of datapoints')
+plt.ylabel('Wave amplitude')
 plt.legend()
 ```
-![average echos](https://github.com/eunicewly/GEOL0069week4/assets/159627060/780eb90a-ec42-40fb-9b40-378295eab1fa)
+![average echos](https://github.com/eunicewly/GEOL0069week4/assets/159627060/72a9f3ac-984d-4a1b-ba06-6ec7e9de8ab4)
 
 Then we plot the standard deviation of the echos in sea ice and leads:
 ```
 plt.plot(np.std(waves_cleaned[clusters_gmm==0],axis=0),label='ice')
 plt.plot(np.std(waves_cleaned[clusters_gmm==1],axis=0),label='lead')
 plt.title('Plot of the standard deviation of the echos of sea ice and lead')
+plt.xlabel('Number of datapoints')
+plt.ylabel('Wave amplitude')
 plt.legend()
 ```
-![std echos](https://github.com/eunicewly/GEOL0069week4/assets/159627060/521477a5-c8d1-461d-a61d-86825c27536e)
+![std echos](https://github.com/eunicewly/GEOL0069week4/assets/159627060/b6fb5a07-9753-4b3d-9713-16b7118332b3)
 
 We can inspect the number of data points in each class of your GMM clustering prediction:
 ```
@@ -410,11 +414,13 @@ plt.plot(np.mean(waves_cleaned[clusters_gmm==1],axis=0),label='class1')
 plt.plot(np.mean(waves_cleaned[clusters_gmm==2],axis=0),label='class2')
 plt.plot(np.mean(waves_cleaned[clusters_gmm==3],axis=0),label='class3')
 plt.plot(np.mean(waves_cleaned[clusters_gmm==4],axis=0),label='class4')
-plt.plot(np.mean(waves_cleaned[clusters_gmm==5],axis=0),label='class5')
 plt.title('Plot of the average echo shape of the 5 classes in GMM')
+plt.xlabel('Number of datapoints')
+plt.ylabel('Wave amplitude')
 plt.legend()
 ```
-![gmm5class](https://github.com/eunicewly/GEOL0069week4/assets/159627060/d0d82d97-df0b-4c63-b81b-cb6f64cedaff)
+![gmm5class](https://github.com/eunicewly/GEOL0069week4/assets/159627060/6fe0e06c-63b2-464f-94a4-067942aad5c3)
+
 
 The standard deviations:
 ```
@@ -423,11 +429,12 @@ plt.plot(np.std(waves_cleaned[clusters_gmm==1],axis=0),label='class1')
 plt.plot(np.std(waves_cleaned[clusters_gmm==2],axis=0),label='class2')
 plt.plot(np.std(waves_cleaned[clusters_gmm==3],axis=0),label='class3')
 plt.plot(np.std(waves_cleaned[clusters_gmm==4],axis=0),label='class4')
-plt.plot(np.std(waves_cleaned[clusters_gmm==5],axis=0),label='class5')
 plt.title('Plot of the echo standard deviation of the 5 classes in GMM')
+plt.xlabel('Number of datapoints')
+plt.ylabel('Wave amplitude')
 plt.legend()
 ```
-![gmm5class_std](https://github.com/eunicewly/GEOL0069week4/assets/159627060/9049c8f7-d39e-4984-a48c-47951477dc79)
+![gmm5class_std](https://github.com/eunicewly/GEOL0069week4/assets/159627060/13717530-4dc3-4d2d-81e7-b80023da6785)
 
 
 ### 10 classes
@@ -448,11 +455,13 @@ plt.plot(np.mean(waves_cleaned[clusters_gmm==6],axis=0),label='class6')
 plt.plot(np.mean(waves_cleaned[clusters_gmm==7],axis=0),label='class7')
 plt.plot(np.mean(waves_cleaned[clusters_gmm==8],axis=0),label='class8')
 plt.plot(np.mean(waves_cleaned[clusters_gmm==9],axis=0),label='class9')
-plt.plot(np.mean(waves_cleaned[clusters_gmm==10],axis=0),label='class10')
 plt.title('Plot of the average echo shape of the 10 classes in GMM')
+plt.xlabel('Number of datapoints')
+plt.ylabel('Wave amplitude')
 plt.legend()
 ```
-![gmm10class](https://github.com/eunicewly/GEOL0069week4/assets/159627060/f0f09d27-aa45-49d0-ae3b-5bf4d482996c)
+![gmm10class](https://github.com/eunicewly/GEOL0069week4/assets/159627060/fa26c0f6-05e7-4d1b-8e3b-336554ee9f58)
+
 
 The standard deviations:
 ```
@@ -466,11 +475,13 @@ plt.plot(np.std(waves_cleaned[clusters_gmm==6],axis=0),label='class6')
 plt.plot(np.std(waves_cleaned[clusters_gmm==7],axis=0),label='class7')
 plt.plot(np.std(waves_cleaned[clusters_gmm==8],axis=0),label='class8')
 plt.plot(np.std(waves_cleaned[clusters_gmm==9],axis=0),label='class9')
-plt.plot(np.std(waves_cleaned[clusters_gmm==10],axis=0),label='class10')
 plt.title('Plot of the echo standard deviation of the 10 classes in GMM')
+plt.xlabel('Number of datapoints')
+plt.ylabel('Wave amplitude')
 plt.legend()
 ```
-![gmm10class_std](https://github.com/eunicewly/GEOL0069week4/assets/159627060/bb87c37c-d071-46ba-aa0c-9ff50028d934)
+![gmm10class_std](https://github.com/eunicewly/GEOL0069week4/assets/159627060/57647d79-e10c-42c6-8663-9e07283cf054)
+
 
 ## Confusion Matrix
 
